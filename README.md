@@ -8,3 +8,6 @@ Using llm to customize resume and cover letter for job search.
 * 02_customize_cover_letter.ipynb similar flow as the previous code.
 * 03_upload_to_gsheet.ipynb will upload the dataset of the job that is created as the job that interest the user, it will be saved in cloud google sheet that can be accessed and monitored anytime the user want.
 
+## Requirement
+* Python library
+* json files that connect the data with google sheet this can be removed by using local application such as excel or number.
