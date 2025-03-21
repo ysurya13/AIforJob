@@ -89,10 +89,10 @@ def read_cover_letter_draft():
 # Work Experience
 def cover_letter_txt(client, ai_model, jobdesc, resume, about_me, address):
     today_date = datetime.today().strftime('%B %d, %Y')
-    response = client.chat.completions.create(
+    response1 = client.chat.completions.create(
         model=ai_model,
         messages=[
-            {"role": "system", "content": "You are human expert in cover letter writing. Use simple language and write like you mean it."},
+            {"role": "system", "content": "You are an expert in cover letter writing. Use simple language and write like you mean it."},
             {"role": "user", "content": f"Job decsription: {jobdesc}"},
             {"role": "user", "content": f"Resume: {resume}"},
             {"role": "user", "content": f"About me: {about_me}"},
@@ -103,7 +103,22 @@ def cover_letter_txt(client, ai_model, jobdesc, resume, about_me, address):
         stream=False
     )
 
-    cl = response.choices[0].message.content
+    cl_draft = response1.choices[0].message.content
+
+    response2 = client.chat.completions.create(
+        model=ai_model,
+        messages=[
+            {"role": "system", "content": "You are expert in reviewing cover letter."},
+            {"role": "user", "content": f"Cover letter draft: {cl_draft}"},
+            {"role": "user", "content": "Make a strong opening, arrange story with high specificity in skills, and add a stronger call to action."},
+            {"role": "user", "content": "Make sure no empty placeholder in it."},
+            {"role": "user", "content": "Do not include your explanation in the output."},
+            {"role": "user", "content": "Only response with the final cover letter."}
+            ],
+        stream=False
+    )
+
+    cl = response2.choices[0].message.content
     return cl
 
 

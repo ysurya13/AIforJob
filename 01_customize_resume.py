@@ -81,7 +81,19 @@ def find_keywords(client, ai_model):
         stream=False
     )
 
-    return response.choices[0].message.content
+    # refine the response
+    response1 = client.chat.completions.create(
+        model=ai_model,
+        messages=[
+            {"role": "system", "content": "You are a expert in recruitment."},
+            {"role": "user", "content": f"Job Description: {read_job_description()}"},
+            {"role": "user", "content": f"Refine this response: {response.choices[0].message.content}"},
+            {"role": "user", "content": "Only output 3 parameters: company_name, job_title, relevant_skills. Output in csv format!"}
+            ],
+        stream=False
+    )
+
+    return response1.choices[0].message.content
 
 
 # In[46]:
@@ -149,7 +161,6 @@ def work_experience(client, ai_model, jobdesc):
             ],
         stream=False
     )
-
     work_experience = response.choices[0].message.content
     return work_experience
 
