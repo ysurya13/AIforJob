@@ -13,7 +13,10 @@ from pypdf import PdfReader
 import pandas as pd
 import glob
 import sys
+import logging
 
+# Set the logging level to ERROR
+logging.getLogger('pypdf').setLevel(logging.ERROR)
 
 # In[42]:
 

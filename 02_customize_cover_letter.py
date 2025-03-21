@@ -13,9 +13,10 @@ from pypdf import PdfReader
 from datetime import datetime
 import pandas as pd
 import glob
+import logging
 
-
-# In[82]:
+# Set the logging level to ERROR
+logging.getLogger('pypdf').setLevel(logging.ERROR)
 
 
 # read current resume
