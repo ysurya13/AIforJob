@@ -215,7 +215,7 @@ def skills_section(client, ai_model, jobdesc):
 # In[51]:
 
 
-def ats_resume(headline, contact_info, education, work, skills, project_exp, client, ai_model):
+def ats_resume(headline, contact_info, education, work, skills, project_exp, client, ai_model, relevant_skills):
     #client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url="https://api.deepseek.com")
 
     response = client.chat.completions.create(
@@ -233,6 +233,21 @@ def ats_resume(headline, contact_info, education, work, skills, project_exp, cli
             ],
         stream=False
     )
+    draft_resume = response.choices[0].message.content
+    
+    # refine the resume
+    response = client.chat.completions.create(
+        model=ai_model,
+        messages=[
+            {"role": "system", "content": "You are a expert in ATS friendly resume writing."},
+            {"role": "user", "content": f"Refine this resume: {draft_resume}"},
+            {"role": "user", "content": f"Relevant skills: {relevant_skills}"},
+            {"role": "user", "content": "Make it more concise and impactful. Do not include your explanation in the output."}
+            ],
+        stream=False
+    )
+
+
 
     print("Resume generated successfully.")
     resume = response.choices[0].message.content
@@ -375,7 +390,7 @@ def custom_resume(company_name, job_title, relevant_skills):
     Set max-width: 800px; to keep content properly aligned.
     """
 
-    resume = ats_resume(headline, contact_info, education, work, skills, project_exp, client, ai_model)
+    resume = ats_resume(headline, contact_info, education, work, skills, project_exp, client, ai_model, relevant_skills)
 
     # use deepseek for coding assignment
     client, ai_model = model_selection('deepseek')
