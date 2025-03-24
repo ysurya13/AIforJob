@@ -38,18 +38,6 @@ def read_current_resume():
     return texts
 
 
-# In[43]:
-
-
-# read job description txt file for now
-def read_job_description():
-    path = os.path.join(os.getcwd(), "source_job_desc", "job_data.txt")
-    with open(path, "r") as file:
-        return file.read()
-
-
-# In[44]:
-
 
 def model_selection(model):
     if model == "openai":
@@ -61,59 +49,6 @@ def model_selection(model):
     else:
         raise Exception("Invalid model")
     return client, ai_model
-
-
-# In[45]:
-
-
-# find keywords in job description
-def find_keywords(client, ai_model):
-
-    response = client.chat.completions.create(
-        #model="deepseek-chat",
-        model=ai_model,
-        messages=[
-            {"role": "system", "content": "You are a expert in recruitment."},
-            {"role": "user", "content": f"Job Description: {read_job_description()}"},
-            {"role": "user", "content": "Find the company_name, job_title, and relevant_skills in the job description. Do not rephrase!"},
-            {"role": "user", "content": "Only output 3 parameters: company_name, job_title, relevant_skills. Output in csv format!"}
-            ],
-        stream=False
-    )
-
-    # refine the response
-    response1 = client.chat.completions.create(
-        model=ai_model,
-        messages=[
-            {"role": "system", "content": "You are a expert in recruitment."},
-            {"role": "user", "content": f"Job Description: {read_job_description()}"},
-            {"role": "user", "content": f"Refine this response: {response.choices[0].message.content}"},
-            {"role": "user", "content": "Only output 3 parameters: company_name, job_title, relevant_skills. Output in csv format!"}
-            ],
-        stream=False
-    )
-
-    return response1.choices[0].message.content
-
-
-# In[46]:
-
-
-def save_job_description():
-    print("Enter job description (Press Ctrl+D to save and exit):")
-
-    # Read multiple lines from stdin
-    lines = sys.stdin.read()
-    path = os.path.join(os.getcwd(), "source_job_desc", "job_data.txt")
-
-    # Save to a text file
-    with open(path, "w") as file:
-        file.write(lines)
-
-    print("\nJob description saved successfully.")
-
-
-# In[47]:
 
 
 # Headline
@@ -242,11 +177,26 @@ def ats_resume(headline, contact_info, education, work, skills, project_exp, cli
             {"role": "system", "content": "You are a expert in ATS friendly resume writing."},
             {"role": "user", "content": f"Refine this resume: {draft_resume}"},
             {"role": "user", "content": f"Relevant skills: {relevant_skills}"},
-            {"role": "user", "content": "Make it more concise and impactful. Do not include your explanation in the output."}
+            {"role": "user", "content": "Make sure the relevant skills mentioned project, work experience, and skills. Do not include your explanation in the output."}
             ],
         stream=False
     )
+    draft_resume = response.choices[0].message.content
 
+    with open('resume_structure.txt', "r") as file:
+        resume_format = file.read()
+
+    # resume format to resume
+    response = client.chat.completions.create(
+        model=ai_model,
+        messages=[
+            {"role": "system", "content": "You are a expert in ATS friendly resume writing."},
+            {"role": "user", "content": f"Resume format: {resume_format}"},
+            {"role": "user", "content": f"Draft resume: {draft_resume}"},
+            {"role": "user", "content": "Use the format to create a final resume. Do not include your explanation in the output."}
+            ],
+        stream=False
+    )
 
 
     print("Resume generated successfully.")
@@ -260,7 +210,6 @@ def ats_resume(headline, contact_info, education, work, skills, project_exp, cli
 # format the result to html
 def resume_to_html(resume, html_format, client, ai_model):
     #client
-
     response = client.chat.completions.create(
         model=ai_model,
         messages=[
@@ -312,35 +261,6 @@ def html_to_pdf(clean_html, name):
 
     # Run the function
     asyncio.get_event_loop().run_until_complete(generate_pdf_from_html(html_content, pdf_path))
-
-
-# In[54]:
-
-
-def add_jobdesc_data():
-    # get jobs description from user
-    save_job_description()
-
-    # analyze the job description
-    client, ai_model = model_selection("openai")
-    res = find_keywords(client, ai_model)
-
-    # Split the res string into lines
-    lines = res.split('\n')
-    col_name = lines[1].split(',')
-    content = [lines[2].split(',')[0], lines[2].split(',')[1], str(lines[2].split(',')[2:])]
-    newcontent = pd.DataFrame([content], columns=col_name)
-    newcontent.columns = ['company_name','job_title','relevant_skills']
-    newcontent['Date'] = pd.to_datetime('today').strftime('%Y-%m-%d')
-
-    job_desc_data = pd.read_csv('job_description.csv')
-    # append the new content to the existing job description data
-    job_desc_data = pd.concat([job_desc_data, newcontent], ignore_index=True)
-    #job_desc_data.replace('"', '', regex=True, inplace=True)
-    job_desc_data.to_csv('job_description.csv', index=False)
-
-    print("Job description data added successfully.")
-    
 
 
 # In[55]:
@@ -399,7 +319,7 @@ def custom_resume(company_name, job_title, relevant_skills):
     print('Resume PDF saved!')
 
 if __name__ == "__main__":
-    add_jobdesc_data()
+    print("Customizing resume...")
     jobs = pd.read_csv('job_description.csv')
     company_name = jobs['company_name'].iloc[-1]
     job_title = jobs['job_title'].iloc[-1]

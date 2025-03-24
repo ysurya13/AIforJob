@@ -1,0 +1,18 @@
+Name - Bold center
+Headline - Bold center
+Contact details - Normal center
+---
+Education - Section head bold, align left
+University, Program Study, years
+---
+Project - Section head bold, align left
+Project title: Detail Project
+---
+Work Experience - Section head bold, align left
+Job Title - Company Name - years
+* Details responsibilities
+---
+Skills - Section head bold, align left
+Soft skill: [list of soft skills]
+Hard skill: [list of hard skills]
+Other relevant skill: [list of other relevant skills]

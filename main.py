@@ -1,5 +1,5 @@
 import subprocess
-import sys
+import time
 
 if __name__ == "__main__":
 
@@ -9,7 +9,11 @@ if __name__ == "__main__":
 
     # Run each script
     for script in scripts:
+        start = time.time()  # Start time for each script
         print(f"\nRunning {script}...")
         subprocess.run(["python", script])  # Runs each script
         print(f"Finished {script}.\n")
+        end = time.time()
+        elapsed_time = end - start
+        print(f"Elapsed time for {script}: {elapsed_time:.2f} seconds\n")
 
