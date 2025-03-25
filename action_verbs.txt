@@ -1,0 +1,170 @@
+Administrative:
+ - analyze
+ - arrange
+ - assemble
+ - catalogue
+ - chart
+ - collect
+ - compile
+ - complete
+ - compute
+ - correspond
+
+Assistance:
+ - advise
+ - advocate
+ - aid
+ - assist
+ - coach
+ - contribute
+ - counsel
+ - empower
+ - encourage
+ - facilitate
+
+Achievement:
+ - accomplish
+ - acquire
+ - attain
+ - discover
+ - earn
+ - establish
+ - fulfill
+ - gain
+ - incur
+ - obtain
+ - procure
+ - surpass
+
+Collaboration:
+ - align
+ - collaborate
+ - confer
+ - cooperate
+ - coordinate
+ - facilitate
+ - liaise
+ - mediate
+ - partner
+ - unite
+
+Communication:
+ - advertise
+ - author
+ - co-author
+ - connect
+ - contract
+ - correspond
+ - demonstrate
+ - draft
+ - edit
+ - explain
+
+Creativity & Innovation:
+ - act
+ - activate
+ - author
+ - choreograph
+ - compose
+ - conceptualize
+ - conceive
+ - create
+ - cultivate
+ - customize
+
+Financial & Quantitative Skills:
+ - adjust
+ - allocate
+ - analyze
+ - appraise
+ - audit
+ - average
+ - balance
+ - budget
+ - calculate
+ - compute
+
+Improvement:
+ - accelerate
+ - adapt
+ - amend
+ - amplify
+ - arrange
+ - augment
+ - balance
+ - broaden
+ - centralize
+ - clarify
+
+Leadership:
+ - administer
+ - allocate
+ - appoint
+ - author
+ - centralize
+ - challenge
+ - conduct
+ - contract
+ - control
+ - coordinate
+
+Marketing:
+ - advertise
+ - distribute
+ - motivate
+ - promote
+ - publicize
+ - publish
+ - recruit
+ - report
+ - represent
+ - sell
+
+Mechanical & Technical Skills:
+ - assemble
+ - build
+ - code
+ - construct
+ - convert
+ - debug
+ - design
+ - develop
+ - document
+ - engineer
+
+Organization:
+ - allocate
+ - appoint
+ - arrange
+ - centralize
+ - consolidate
+ - delegate
+ - deliver
+ - direct
+ - lead
+ - outline
+
+Problem-Solving:
+ - augment
+ - consolidate
+ - correct
+ - diagnose
+ - expand
+ - improve
+ - modify
+ - optimize
+ - prioritize
+ - reduce
+
+Research & Analysis:
+ - analyze
+ - assess
+ - calculate
+ - chart
+ - compile
+ - compute
+ - design
+ - diagram
+ - document
+ - engineer
+

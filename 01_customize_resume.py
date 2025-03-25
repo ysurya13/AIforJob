@@ -14,6 +14,7 @@ import pandas as pd
 import glob
 import sys
 import logging
+from bs4 import BeautifulSoup
 
 # Set the logging level to ERROR
 logging.getLogger('pypdf').setLevel(logging.ERROR)
@@ -63,7 +64,7 @@ def find_headline(client, ai_model, job_title, relevent_skills):
             {"role": "user", "content": f"Current resume: {read_current_resume()}"},
             {"role": "user", "content": f"Relevant skills: {relevent_skills}"},
             {"role": "user", "content": f"Job Title: {job_title}"},
-            {"role": "user", "content": """Make only the headline section. Use these formats:
+            {"role": "user", "content": """Make only the headline section. Follow these example formats:
             Results-Oriented Business Analyst with 7 Years of Experience, Finance Manager with 10 Years of Experience in the Banking Industry,
             Human Resources Professional with 5 Years of Experience in Recruitment and Employee Relations"""},
             {"role": "user", "content": "Use the exact same job title and skills you found in the job description."},
@@ -88,20 +89,40 @@ def work_experience(client, ai_model, jobdesc):
             {"role": "system", "content": "You are a expert in ATS friendly resume writing."},
             {"role": "user", "content": "Based on job description and my resume below:"},
             {"role": "user", "content": f"Current resume: {read_current_resume()}"},
-            {"role": "user", "content": f"Job Description: {jobdesc}"},
+            {"role": "user", "content": f"Relevant skills: {relevant_skills}"},
             {"role": "user", "content": "Modify the work experience section of my resume to include all the relevant skills and experience from the job description."},
-            {"role": "user", "content": "Change the job title to match the job description."},
+            {"role": "user", "content": "Change the job title to correlate with the job description."},
             {"role": "user", "content": "Format: Job Title - Company Name - Location - Start Date to End Date in one line followed by a bullet point list of responsibilities and achievements."},
             {"role": "user", "content": "Do not include your explanation and section title in the output. Only include the modified work experience section."},
             ],
         stream=False
     )
+
+    #refine the answer
+    response = client.chat.completions.create(
+        model=ai_model,
+        messages=[
+            {"role": "system", "content": "You are a refining work experience section for ATS friendly resume."},
+            {"role": "user", "content": "Based on the draft work experience section and job description below:"},
+            {"role": "user", "content": f"Current draft: {response.choices[0].message.content}"},
+            {"role": "user", "content": f"Relevant skills: {relevant_skills}"},
+            {"role": "user", "content": "Modify to include these strong words: "+ read_strong_verbs()},
+            {"role": "user", "content": "Do not include your explanation and section title in the output. Only include the modified work experience section."},
+            ],
+        stream=False
+    )
+
+    read_strong_verbs
+    
     work_experience = response.choices[0].message.content
+
+
     return work_experience
 
-
-# In[49]:
-
+def read_strong_verbs():
+    path = os.path.join(os.getcwd(), "action_verbs.txt")
+    with open(path, "r") as file:
+        return file.read()
 
 # Work Experience
 def project_section(client, ai_model, relevant_skills):
@@ -158,7 +179,7 @@ def ats_resume(headline, contact_info, education, work, skills, project_exp, cli
         messages=[
             {"role": "system", "content": "You are a expert in ATS friendly resume writing."},
             {"role": "user", "content": "Make ATS friendly resume based on information below."},
-            {"role": "user", "content": f"Headline: {headline}, put it under the name without any section title."},
+            {"role": "user", "content": f"Headline: {headline}."}, # put it under the name without any section title."},
             {"role": "user", "content": f"Contact Information: {contact_info}"},
             {"role": "user", "content": f"Education: {education}."},
             {"role": "user", "content": f"Project experience: {project_exp}."},
@@ -177,7 +198,7 @@ def ats_resume(headline, contact_info, education, work, skills, project_exp, cli
             {"role": "system", "content": "You are a expert in ATS friendly resume writing."},
             {"role": "user", "content": f"Refine this resume: {draft_resume}"},
             {"role": "user", "content": f"Relevant skills: {relevant_skills}"},
-            {"role": "user", "content": "Make sure the relevant skills mentioned project, work experience, and skills. Do not include your explanation in the output."}
+            {"role": "user", "content": "Make sure the relevant skills mentioned in project, work experience, and skills in detail. Do not include your explanation in the output."}
             ],
         stream=False
     )
@@ -214,10 +235,11 @@ def resume_to_html(resume, html_format, client, ai_model):
         model=ai_model,
         messages=[
             {"role": "system", "content": "You are a expert in html language."},
-            {"role": "user", "content": "Format the resume to html format"},
+            {"role": "user", "content": "Plug in the resume to the html format below."},
             {"role": "user", "content": f"Resume: {resume}"},
-            {"role": "user", "content": f"Guidelines: {html_format}"},
-            {"role": "user", "content": "Do not include your explanation in the output."},
+            {"role": "user", "content": f"HTML format: {html_format}"},
+            {"role": "user", "content": "Stick to the html format available. Do not change the format."},
+            {"role": "user", "content": "Only output the html format. Do not inlude: here's the html format, or any other explanation."},
             ],
         stream=False
     )
@@ -266,6 +288,13 @@ def html_to_pdf(clean_html, name):
 # In[55]:
 
 
+def html_template():
+    with open('template.html', 'r') as file:
+        html_content = file.read()
+
+    soup = BeautifulSoup(html_content, 'html.parser')
+    return soup.prettify()
+
 def custom_resume(company_name, job_title, relevant_skills):
     
     
@@ -289,37 +318,18 @@ def custom_resume(company_name, job_title, relevant_skills):
     Bandung Institute of Technology - Bachelor of Engineering (07/2017)
     """
 
-    html_format = """
-    Guidelines:
-    Center the name, headline, and contact information.
-    Add separator between sections.
-    Use a 12px font size for all content differentiate bold for important info.
-    Use a 10px font size for the contact information.
-    Use Arial font family.
-    Use 1.5 line spacing.
-    Use a 20px margin between sections.
-    Use a 10px margin between the name and headline.
-
-    Use Semantic HTML
-
-    Wrap the resume in <section> and <div> tags.
-    Use <h1> for the candidate’s name, <h2> for section titles, and <p> or <ul> for content.
-
-    Set body { margin: 0; padding: 20px; }.
-    Use page-break-before: always; where necessary to manage page flow.
-    Set max-width: 800px; to keep content properly aligned.
-    """
+    html_template_1 = html_template()
 
     resume = ats_resume(headline, contact_info, education, work, skills, project_exp, client, ai_model, relevant_skills)
 
     # use deepseek for coding assignment
-    client, ai_model = model_selection('deepseek')
-    html_file = resume_to_html(resume, html_format, client, ai_model)
+    client, ai_model = model_selection('openai')
+    html_file = resume_to_html(resume, html_template_1, client, ai_model)
     html_to_pdf(html_file, name=company_name)
     print('Resume PDF saved!')
 
 if __name__ == "__main__":
-    print("Customizing resume...")
+    #print("Customizing resume...")
     jobs = pd.read_csv('job_description.csv')
     company_name = jobs['company_name'].iloc[-1]
     job_title = jobs['job_title'].iloc[-1]
