@@ -15,6 +15,7 @@ import glob
 import sys
 import logging
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 # Set the logging level to ERROR
 logging.getLogger('pypdf').setLevel(logging.ERROR)
@@ -81,7 +82,7 @@ def find_headline(client, ai_model, job_title, relevent_skills):
 
 
 # Work Experience
-def work_experience(client, ai_model, jobdesc):
+def work_experience(client, ai_model, relevant_skills, job_title):
 
     response = client.chat.completions.create(
         model=ai_model,
@@ -90,8 +91,9 @@ def work_experience(client, ai_model, jobdesc):
             {"role": "user", "content": "Based on job description and my resume below:"},
             {"role": "user", "content": f"Current resume: {read_current_resume()}"},
             {"role": "user", "content": f"Relevant skills: {relevant_skills}"},
-            {"role": "user", "content": "Modify the work experience section of my resume to include all the relevant skills and experience from the job description."},
-            {"role": "user", "content": "Change the job title to correlate with the job description."},
+            {"role": "user", "content": f"Job Title: {job_title}"},
+            {"role": "user", "content": "Modify the work experience section of my resume to include all the relevant skills and experience from the relevant skills list."},
+            # {"role": "user", "content": "Modify the my past job title to correlate with the job title in the job description."},
             {"role": "user", "content": "Format: Job Title - Company Name - Location - Start Date to End Date in one line followed by a bullet point list of responsibilities and achievements."},
             {"role": "user", "content": "Do not include your explanation and section title in the output. Only include the modified work experience section."},
             ],
@@ -133,8 +135,9 @@ def project_section(client, ai_model, relevant_skills):
             {"role": "system", "content": "You are a expert in ATS friendly resume writing."},
             {"role": "user", "content": "Based skill required and my resume below:"},
             {"role": "user", "content": f"Current resume: {read_current_resume()}"},
-            {"role": "user", "content": f"Relevant skills: {relevant_skills}"},
-            {"role": "user", "content": "Rewrite the project experience to reflect the skills required."},
+            {"role": "user", "content": f"Relevant required: {relevant_skills}"},
+            {"role": "user", "content": f"Rewrite the project experience to reflect the skills required. Use strong verbs: {read_strong_verbs()}"},
+            {"role": "user", "content": "Format: Project Title - Description in one line followed by a bullet point list of responsibilities and achievements."},
             {"role": "user", "content": "Do not include your explanation and section title in the output. Only include the modified project experience section."},
             ],
         stream=False
@@ -214,7 +217,7 @@ def ats_resume(headline, contact_info, education, work, skills, project_exp, cli
             {"role": "system", "content": "You are a expert in ATS friendly resume writing."},
             {"role": "user", "content": f"Resume format: {resume_format}"},
             {"role": "user", "content": f"Draft resume: {draft_resume}"},
-            {"role": "user", "content": "Use the format to create a final resume. Do not include your explanation in the output."}
+            {"role": "user", "content": "Strictly follow the format to create a final resume. Do not include your explanation in the output."}
             ],
         stream=False
     )
@@ -255,8 +258,11 @@ def resume_to_html(resume, html_format, client, ai_model):
 
 def html_to_pdf(clean_html, name):
 
+    now = datetime.now()
+    formatted_date_time = now.strftime("%Y-%m-%d-%H-%M-%S")
+
     nest_asyncio.apply()
-    pdf_path = os.path.join(os.getcwd(), "results", "resume", f"{name}_Resume.pdf")
+    pdf_path = os.path.join(os.getcwd(), "results", "resume", f"{formatted_date_time}_{name}_Resume.pdf")
 
     async def generate_pdf_from_html(html_content, pdf_path):
         browser = await launch()
@@ -301,7 +307,7 @@ def custom_resume(company_name, job_title, relevant_skills):
     client, ai_model = model_selection('openai')
     # jobdesc = find_keywords(client, ai_model)
     headline = find_headline(client, ai_model, job_title, relevant_skills)
-    work = work_experience(client, ai_model, relevant_skills)
+    work = work_experience(client, ai_model, relevant_skills, job_title)
     skills = skills_section(client, ai_model, relevant_skills)
     project_exp = project_section(client, ai_model, relevant_skills)
 

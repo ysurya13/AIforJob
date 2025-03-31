@@ -10,9 +10,9 @@ if __name__ == "__main__":
     # Run each script
     for script, action in zip(scripts,actions):
         start = time.time()  # Start time for each script
-        print(f"\n{action}...")
+        print(f"{action}")
         subprocess.run(["python", script])  # Runs each script
-        print(f"Finished {action}.\n")
+        print(f"Finished {action}.")
         end = time.time()
         elapsed_time = end - start
         print(f"Elapsed time for {script}: {elapsed_time:.2f} seconds\n")
